@@ -1,9 +1,8 @@
-import { execa } from 'execa';
 import {
-	black, dim, green, red, bgCyan,
+	black, dim, red, bgCyan,
 } from 'kolorist';
 import {
-	intro, outro, spinner, select, confirm, isCancel,
+	intro, outro, spinner, select, isCancel,
 } from '@clack/prompts';
 import {
 	assertGitRepo,
@@ -16,7 +15,6 @@ import { KnownError, handleCliError } from '../utils/error.js';
 
 export default async (
 	generate: number | undefined,
-	rawArgv: string[],
 ) => (async () => {
 	intro(bgCyan(black(' aicommits ')));
 
@@ -61,14 +59,17 @@ export default async (
 	let message: string;
 	if (messages.length === 1) {
 		[message] = messages;
-		const confirmed = await confirm({
-			message: `Use this commit message?\n\n   ${message}\n`,
-		});
 
-		if (!confirmed || isCancel(confirmed)) {
-			outro('Commit cancelled');
-			return;
-		}
+		outro(message);
+
+		// const confirmed = await confirm({
+		// 	message: `Use this commit message?\n\n   ${message}\n`,
+		// });
+
+		// if (!confirmed || isCancel(confirmed)) {
+		// 	outro('Commit cancelled');
+		// 	return;
+		// }
 	} else {
 		const selected = await select({
 			message: `Pick a commit message to use: ${dim('(Ctrl+c to exit)')}`,
@@ -83,9 +84,9 @@ export default async (
 		message = selected;
 	}
 
-	await execa('git', ['commit', '-m', message, ...rawArgv]);
+	// await execa('git', ['commit', '-m', message, ...rawArgv]);
 
-	outro(`${green('✔')} Successfully committed!`);
+	// outro(`${green('✔')} Successfully committed!`);
 })().catch((error) => {
 	outro(`${red('✖')} ${error.message}`);
 	handleCliError(error);
